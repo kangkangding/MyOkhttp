@@ -1,9 +1,14 @@
 package com.img.dkk.myokhttp.engine;
 
+import com.img.dkk.myokhttp.engine.chain.CallServiceInterceptor;
+import com.img.dkk.myokhttp.engine.chain.HeadersInterceptor;
+import com.img.dkk.myokhttp.engine.chain.Interceptor;
+import com.img.dkk.myokhttp.engine.chain.InterceptorChain;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.Socket;
-import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by  dingkangkang on 2019/10/16
@@ -24,6 +29,10 @@ public class HttpRequestImp implements HttpRequest {
         this.url = url;
 
         httpUrl = new HttpUrl(url);
+
+        Map<String,String> headersMap = new HashMap<>();
+
+        httpUrl.setHeaders(headersMap);
     }
 
     @Override public void setListener(CallBackListener callBackListener) {
@@ -33,31 +42,19 @@ public class HttpRequestImp implements HttpRequest {
     @Override public void excute() {
         try {
 
+            List<Interceptor> interceptorList = new ArrayList<>();
+
+            interceptorList.add(new HeadersInterceptor());
+            interceptorList.add(new CallServiceInterceptor());
+
             CreateSocket createSocket = new CreateSocket();
-            createSocket.connectSocket(httpUrl.getHost(),httpUrl.getPort());
+            createSocket.setHttpUrl(httpUrl);
+            InterceptorChain interceptorChain = new InterceptorChain(interceptorList,createSocket,0);
 
-            createSocket.writeRequest(httpUrl);
-
-            InputStream inputStream = createSocket.getInputStream();
+            InputStream inputStream = interceptorChain.proceed();
 
             callBackListener.onSuccess(inputStream);
 
-            //String url = "https://www.baidu.com/";
-            //URL urls = new URL(url);
-            ////得到connection对象。
-            //HttpURLConnection connection = (HttpURLConnection) urls.openConnection();
-            ////设置请求方式
-            //connection.setRequestMethod("GET");
-            ////连接
-            //connection.connect();
-            ////得到响应码
-            //int responseCode = connection.getResponseCode();
-            //if(responseCode == HttpURLConnection.HTTP_OK){
-            //    //得到响应流
-            //    InputStream inputStream = connection.getInputStream();
-            //    //将响应流转换成字符串
-            //    callBackListener.onSuccess(inputStream);
-            //}
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -90,7 +90,7 @@ public class CovertCallBackListener<T> implements CallBackListener {
         byteBuffer.reset();
         byteBuffer.get(bytes);
         if(bytes.length >0){
-            inputStream.close();
+            //inputStream.close();
             return new String(bytes);
         }
 

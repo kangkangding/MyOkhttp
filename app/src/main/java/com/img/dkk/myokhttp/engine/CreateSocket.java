@@ -17,6 +17,8 @@ public class CreateSocket {
     Socket socket;
     InputStream inputStream;
     OutputStream outputStream;
+    HttpUrl httpUrl;
+
     static final String CRLF = "\r\n";
     static final int CR = 13;//回车的ASCII码
     static final int LF = 10;//换行的ASCII码
@@ -24,9 +26,17 @@ public class CreateSocket {
     static final String HTTP_VERSION = "HTTP/1.1";//http的版本信息
     static final String COLON = ":";//冒号
 
-    public void connectSocket(String hostName,int port){
+    public void setHttpUrl(HttpUrl httpUrl) {
+        this.httpUrl = httpUrl;
+    }
 
-        SocketAddress socketAddress = new InetSocketAddress(hostName,port);
+    public HttpUrl getHttpUrl() {
+        return httpUrl;
+    }
+
+    public void connectSocket(){
+
+        SocketAddress socketAddress = new InetSocketAddress(httpUrl.getHost(),httpUrl.getPort());
 
         socket = new Socket();
 
@@ -44,7 +54,7 @@ public class CreateSocket {
         }
     }
 
-    public void writeRequest(HttpUrl httpUrl) throws IOException{
+    public void writeRequest() throws IOException{
 
         StringBuffer sb = new StringBuffer();
         //GET /v3/weather/weatherInfo?key=064a7778b8389441e30f91b8a60c9b23&city=%25E6%25B7%25B1%25E5%259C%25B3 HTTP/1.1
@@ -58,8 +68,11 @@ public class CreateSocket {
         //TODO 拼接请求头
 
         Map<String,String> headers = new ArrayMap<>();
-        headers.put("Host",httpUrl.getHost());
-        headers.put("Connection", "Keep-Alive");
+
+        headers = httpUrl.getHeaders();
+
+        //headers.put("Host",httpUrl.getHost());
+        //headers.put("Connection", "Keep-Alive");
 
         for(Map.Entry<String,String> entry : headers.entrySet()){
             //Content-Type:	application/json;charset=UTF-8

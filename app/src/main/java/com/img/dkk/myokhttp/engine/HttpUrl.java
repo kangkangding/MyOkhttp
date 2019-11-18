@@ -3,6 +3,7 @@ package com.img.dkk.myokhttp.engine;
 import android.text.TextUtils;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 
 /**
  * Created by  dingkangkang on 2019/10/23
@@ -14,6 +15,15 @@ public class HttpUrl {
     String host;//服务器地址
     String file;//请求服务器文件路径
     int port;//服务器服务端口
+    private Map<String,String> headers;//http包请求头
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
 
     public HttpUrl(String url) {
         URL localUrl = null;//url格式化
